@@ -10,7 +10,8 @@ var paths = {
   jade: 'app/**/*.jade',
   scss: 'app/assets/css/**/*.scss',
   js: 'app/assets/js/**/*.js',
-  images: 'app/assets/img/**'
+  images: 'app/assets/img/**',
+  bower: 'bower_components'
 };
 
 
@@ -29,7 +30,10 @@ gulp.task('html', function() {
 // =======================================================
 
 gulp.task('css', function() {
-  return gulp.src(paths.scss)
+  return gulp.src([
+      paths.bower + '/normalize-css/normalize.css',
+      paths.scss
+    ])
     .pipe(plugin.sass())
     .pipe(plugin.autoprefixer("last 2 version"))
     .pipe(plugin.minifyCss())
@@ -43,8 +47,12 @@ gulp.task('css', function() {
 
 gulp.task('js', function() {
   return gulp.src([
+      paths.bower + '/jquery/jquery.js',
+      paths.bower + '/modernizr/modernizr.js',
+      paths.bower + '/underscore/underscore.js',
       'app/assets/js/vendor/*.js',
       'app/assets/js/components/*.js',
+      'app/assets/js/reverb-api.js',
       'app/assets/js/scripts.js',
     ])
     .pipe(plugin.concat('scripts.min.js'))
@@ -102,7 +110,7 @@ gulp.task('connect', function() {
 // =======================================================
 gulp.task('deploy', function () {
   gulp.src('./build/**/*')
-    .pipe(deploy('https://github.com/ethikz/wikiwiki', 'origin'));
+    .pipe(deploy('https://github.com/ethikz/reverb-api', 'origin'));
 });
 
 

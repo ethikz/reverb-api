@@ -18,110 +18,82 @@ _.templateSettings = {
 }());
 
 // Define api url and templates
-var WIKIPEDIA_API_URL = 'http://en.wikipedia.org/w/api.php',
-  articleExtractTemplate = _.template(
+var reverbListingTemplate = _.template(
     '<div class="wiki">' +
       '<div class="image">' +
-        '<img src="{{ article.imageUrl }}">' +
+        '<img src="{{ article.photos[0]._links.thumbnail.href }}">' +
       '</div>' +
       '<div class="title">' +
-        '<a href="#">{{ article.title }}</a>' +
+        '<a href="#" data-id="{{ article.id }}">{{ article.title }}</a>' +
       '</div>' +
-      '<div class="article">{{ article.extract }}</div>' +
     '</div>'
   ),
-  articleContentTemplate = _.template(
-    '<div class="article-content">{{ article.extract }}</div>'
+  reverbDetailTemplate = _.template(
+    '<div class="article-content">' +
+      '<div class="image">' +
+        '<img src="{{ article.photos[0]._links.small_crop.href }}">' +
+      '</div>' +
+      '<div class="make">{{ article.make }} {{ article.model }}</div>' +
+      '<div class="condition">{{ article.condition }}</div>' +
+      '<div class="price">{{ article.price.symbol }}{{ article.price.amount }}</div>' +
+      '<div class="article">{{ article.description }}</div>' +
+    '</div>'
   );
 
-function getJSONP(url, data) {
-  return $.ajax(url, {
-    dataType: 'jsonp',
-    data: data
-  });
-}
-
 // Get's Article Extract on button press and load images
-function getArticleExtracts() {
-  getJSONP(WIKIPEDIA_API_URL, {
-    action: 'query',
-    prop: 'images|info|extracts|pageimages',
-    generator: 'random',
-    grnlimit: numberOfArticles || 2,
-    exintro: true,
-    exlimit: numberOfArticles || 2,
-    exsentences: 2,
-    grnnamespace: 0,
-    inprop: 'url',
-    imlimit: 1,
-    iiurlwidth: '275',
-    iiurlheight: '100',
-    format: 'json'
-  }).then(function(data) {
-    return _.values(data.query.pages)[0];
-  }).then(getImage);
-}
-
-function getImage(article) {
-  getJSONP(WIKIPEDIA_API_URL, {
-    action: 'query',
-    titles: 'File:' + article.pageimage,
-    prop: 'imageinfo',
-    iiprop: 'url',
-    iilocalonly: '',
-    format: 'json'
-  }).then(function(data) {
-    data = _.values(data.query.pages)[0];
-    if (data.imageinfo) {
-      article.imageUrl = data.imageinfo[0].url;
+function getReverbListing() {
+  $.ajax({
+    'url': 'https://reverb.com/api/listings/all',
+    'method': 'GET',
+    'headers': {
+      'accept': 'application/json',
+      'content-type': 'application/json'
     }
-    appendArticleExtracts(article);
+  }).done(function( response ) {
+    appendListing(_.values(response.listings));
   });
 }
 
-function appendArticleExtracts(article) {
-  $('.wiki-wrapper').append(articleExtractTemplate({article: article}));
-}
-
-function articleExt() {
-  numberOfArticles = $('.numberOfArticles').val();
+function reverbList() {
   $('.wiki-wrapper').empty();
   $('.article-content-wrapper').empty();
-  _.each(_.range(0,numberOfArticles), getArticleExtracts);
+  getReverbListing();
+}
+
+function appendListing( listing ) {
+  $.each(listing, function(i, item) {
+    $('.wiki-wrapper').append(reverbListingTemplate({article: item}));
+  });
 }
 
 
-// Get's article on clicking article extract link
-function getArticle(title) {
-  getJSONP(WIKIPEDIA_API_URL, {
-    action: 'query',
-    prop: 'info|extracts',
-    grnlimit: numberOfArticles || 2,
-    exintro: true,
-    exlimit: numberOfArticles || 2,
-    grnnamespace: 0,
-    inprop: 'url',
-    titles: title,
-    format: 'json'
-  }).then(function(data) {
-    return _.values(data.query.pages)[0];
-  }).then(appendArticle);
+function getReverbListingContent( id ) {
+  $.ajax({
+    'url': 'https://reverb.com/api/listings/' + id,
+    'method': 'GET',
+    'headers': {
+      'accept': 'application/json',
+      'content-type': 'application/json'
+    }
+  }).done(function( response ) {
+    appendListDetail(response);
+  });
 }
 
-function appendArticle(article) {
-  $('.article-content-wrapper').append(articleContentTemplate({article: article}));
-}
-
-function articleCont(title) {
+function listDetail( id ) {
   $('.article-content-wrapper').empty();
-  getArticle(title);
+  getReverbListingContent(id);
+}
+
+function appendListDetail( listing ) {
+  $('.article-content-wrapper').append(reverbDetailTemplate({article: listing}));
 }
 
 
 // Click events
-$('.btn').click(articleExt);
+$('.btn').click(reverbList);
 
-$(document).on("click", ".title a", function(e) {
+$(document).on('click', '.title a', function( e ) {
   e.preventDefault();
-  articleCont($(this).text());
+  listDetail($(this).data('id'));
 });
