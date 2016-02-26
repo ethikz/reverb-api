@@ -26,24 +26,19 @@ var reverbListingTemplate = _.template(
       '<div class="title">' +
         '<a href="#" data-id="{{ article.id }}">{{ article.title }}</a>' +
       '</div>' +
-    '</div>'
-  ),
-  reverbDetailTemplate = _.template(
-    '<div class="article-content">' +
-      '<div class="image">' +
-        '<img src="{{ article.photos[0]._links.small_crop.href }}">' +
+      '<div class="wiki-content">' +
+        '<div class="make">{{ article.make }} {{ article.model }}</div>' +
+        '<div class="condition">{{ article.condition }}</div>' +
+        '<div class="price">{{ article.price.symbol }}{{ article.price.amount }}</div>' +
+        '<div class="article">{{ article.description }}</div>' +
       '</div>' +
-      '<div class="make">{{ article.make }} {{ article.model }}</div>' +
-      '<div class="condition">{{ article.condition }}</div>' +
-      '<div class="price">{{ article.price.symbol }}{{ article.price.amount }}</div>' +
-      '<div class="article">{{ article.description }}</div>' +
     '</div>'
   );
 
 // Get's Article Extract on button press and load images
 function getReverbListing() {
   $.ajax({
-    'url': 'https://reverb.com/api/listings/all',
+    'url': 'https://reverb.com/api/listings/all?query=bass',
     'method': 'GET',
     'headers': {
       'accept': 'application/json',
@@ -66,34 +61,14 @@ function appendListing( listing ) {
   });
 }
 
-
-function getReverbListingContent( id ) {
-  $.ajax({
-    'url': 'https://reverb.com/api/listings/' + id,
-    'method': 'GET',
-    'headers': {
-      'accept': 'application/json',
-      'content-type': 'application/json'
-    }
-  }).done(function( response ) {
-    appendListDetail(response);
-  });
-}
-
-function listDetail( id ) {
-  $('.article-content-wrapper').empty();
-  getReverbListingContent(id);
-}
-
-function appendListDetail( listing ) {
-  $('.article-content-wrapper').append(reverbDetailTemplate({article: listing}));
-}
-
-
 // Click events
 $('.btn').click(reverbList);
 
 $(document).on('click', '.title a', function( e ) {
   e.preventDefault();
-  listDetail($(this).data('id'));
+  if ( !$(this).parent().siblings('.wiki-content').hasClass('wiki-content--visible') ) {
+    $(this).parent().siblings('.wiki-content').addClass('wiki-content--visible');
+  } else {
+    $(this).parent().siblings('.wiki-content').removeClass('wiki-content--visible');
+  }
 });
