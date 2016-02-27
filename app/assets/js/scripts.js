@@ -36,9 +36,9 @@ var reverbListingTemplate = _.template(
   );
 
 // Get's Article Extract on button press and load images
-function getReverbListing() {
+function getReverbListing( param ) {
   $.ajax({
-    'url': 'https://reverb.com/api/listings/all?query=bass',
+    'url': 'https://reverb.com/api/listings/all?query=' + param,
     'method': 'GET',
     'headers': {
       'accept': 'application/json',
@@ -49,10 +49,10 @@ function getReverbListing() {
   });
 }
 
-function reverbList() {
+function reverbList( param ) {
   $('.wiki-wrapper').empty();
   $('.article-content-wrapper').empty();
-  getReverbListing();
+  getReverbListing(param);
 }
 
 function appendListing( listing ) {
@@ -62,7 +62,14 @@ function appendListing( listing ) {
 }
 
 // Click events
-$('.btn').click(reverbList);
+$('.btn').on('click', function() {
+  var param = $('input').val();
+  reverbList(param);
+});
+
+$('input').on('focusout', function() {
+  $('.btn').text('Find ' + $(this).val() + ' Listings');
+});
 
 $(document).on('click', '.title a', function( e ) {
   e.preventDefault();
