@@ -1,4 +1,4 @@
-.wiki-wrapper {
+.reverb-wrapper {
   @include j-center(960px);
   column-count: 1;
   column-gap: 20px;
@@ -14,7 +14,7 @@
   }
 }
 
-.wiki {
+.reverb {
   @include j-center(960px);
   background-color: $color-white;
   border-radius: 8px;
@@ -55,10 +55,40 @@
   }
 }
 
-.wiki-content {
+.reverb-modal {
   display: none;
+  position: fixed;
+  background: #fff;
+  opacity: 0.9;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  overflow-y: scroll;
+  padding: 1em;
 }
 
-.wiki-content--visible {
+.pull-right {
+  float: right;
+}
+
+.reverb-modal--visible {
   display: block;
+}
+
+.reverb-content {
+  max-width: 1120px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.reverb-content__header {
+  position: absolute;
+  width: 100%;
+  top: 1em;
+}
+
+.reverb-content__description {
+  width: 100%;
+  padding-top: 100px;
 }

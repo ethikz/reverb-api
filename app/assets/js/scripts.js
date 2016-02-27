@@ -19,52 +19,68 @@ _.templateSettings = {
 
 // Define api url and templates
 var reverbListingTemplate = _.template(
-    '<div class="wiki">' +
+    '<div class="reverb">' +
       '<div class="image">' +
         '<img src="{{ article.photos[0]._links.thumbnail.href }}">' +
       '</div>' +
       '<div class="title">' +
         '<a href="#" data-id="{{ article.id }}">{{ article.title }}</a>' +
       '</div>' +
-      '<div class="wiki-content">' +
-        '<div class="make">{{ article.make }} {{ article.model }}</div>' +
-        '<div class="condition">{{ article.condition }}</div>' +
-        '<div class="price">{{ article.price.symbol }}{{ article.price.amount }}</div>' +
-        '<div class="article">{{ article.description }}</div>' +
+    '</div>'
+  ),
+  reverbDetailTemplate = _.template(
+    '<div class="reverb-modal" id="{{ article.id }}">' +
+      '<div class="reverb-content">' +
+        '<div class="reverb-content__header">' +
+          '<a href="#" class="pull-right close">Close</a>' +
+          '{{ article.make }} {{ article.model }}' +
+          '<br>' +
+          '{{ article.condition }}' +
+          '<br>' +
+          '{{ article.price.symbol }}{{ article.price.amount }}' +
+        '</div>' +
+        '<div class="reverb-content__description">{{ article.description }}</div>' +
       '</div>' +
     '</div>'
   );
 
 // Get's Article Extract on button press and load images
-function getReverbListing( param ) {
+// 'url': 'https://reverb.com/api/listings/all?query=' + param + '&per_page=200',
+function getReverbListing( ) {
   $.ajax({
-    'url': 'https://reverb.com/api/listings/all?query=' + param,
+    'url': 'https://reverb.com/api/my/wishlist',
     'method': 'GET',
+    'dataType': 'json',
+    'contentType': "application/json",
     'headers': {
       'accept': 'application/json',
       'content-type': 'application/json'
+    },
+    beforeSend: function( xhr ) {
+      xhr.setRequestHeader("X-Auth-Token", atob('MDc0OWVlZTE1MzAyOWViMzFjOTI0NjIzZDEwOTEzNzU3ZmMzYjVmNTIwZDJiMjliZjIwNWE0MmZiNjk0ZjhhZQ=='))
     }
   }).done(function( response ) {
     appendListing(_.values(response.listings));
   });
 }
 
-function reverbList( param ) {
-  $('.wiki-wrapper').empty();
+function reverbList( ) {
+  $('.reverb-wrapper').empty();
   $('.article-content-wrapper').empty();
-  getReverbListing(param);
+  getReverbListing();
 }
 
 function appendListing( listing ) {
   $.each(listing, function(i, item) {
-    $('.wiki-wrapper').append(reverbListingTemplate({article: item}));
+    $('body').append(reverbDetailTemplate({article: item}));
+    $('.reverb-wrapper').append(reverbListingTemplate({article: item}));
   });
 }
 
 // Click events
 $('.btn').on('click', function() {
   var param = $('input').val();
-  reverbList(param);
+  reverbList();
 });
 
 $('input').on('focusout', function() {
@@ -73,9 +89,10 @@ $('input').on('focusout', function() {
 
 $(document).on('click', '.title a', function( e ) {
   e.preventDefault();
-  if ( !$(this).parent().siblings('.wiki-content').hasClass('wiki-content--visible') ) {
-    $(this).parent().siblings('.wiki-content').addClass('wiki-content--visible');
-  } else {
-    $(this).parent().siblings('.wiki-content').removeClass('wiki-content--visible');
-  }
+  $('#' + $(this).data('id')).addClass('reverb-modal--visible')
+});
+
+$(document).on('click', '.close', function( e ) {
+  e.preventDefault();
+  $(this).parent().parent().parent().removeClass('reverb-modal--visible')
 });
