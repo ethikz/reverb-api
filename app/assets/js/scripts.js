@@ -20,12 +20,10 @@ _.templateSettings = {
 // Define api url and templates
 var reverbListingTemplate = _.template(
     '<div class="item">' +
-      '<div class="item__image">' +
-        '<img src="{{ article.photos[0]._links.thumbnail.href }}">' +
-      '</div>' +
-      '<div class="item__title">' +
-        '<a href="#" data-id="{{ article.id }}">{{ article.title }}</a>' +
-      '</div>' +
+      '<a href="#" data-id="{{ article.id }}" class="item__title">' +
+        '<img src="{{ article.photos[0]._links.thumbnail.href }}" class="item__image">' +
+        '<span>{{ article.title }}</span>' +
+      '</a>' +
     '</div>'
   ),
   reverbDetailTemplate = _.template(
@@ -81,11 +79,7 @@ $('.btn').on('click', function() {
   reverbList( param );
 });
 
-$('input').on('focusout', function() {
-  $('.btn').text('Find ' + $(this).val() + ' Listings');
-});
-
-$(document).on('click', '.item__title a', function( e ) {
+$(document).on('click', '.item__title', function( e ) {
   e.preventDefault();
   $('#' + $(this).data('id')).addClass('item-modal--visible');
   $('body').addClass('modal-open');
