@@ -19,19 +19,19 @@ _.templateSettings = {
 
 // Define api url and templates
 var reverbListingTemplate = _.template(
-    '<div class="reverb">' +
-      '<div class="image">' +
+    '<div class="item">' +
+      '<div class="item__image">' +
         '<img src="{{ article.photos[0]._links.thumbnail.href }}">' +
       '</div>' +
-      '<div class="title">' +
+      '<div class="item__title">' +
         '<a href="#" data-id="{{ article.id }}">{{ article.title }}</a>' +
       '</div>' +
     '</div>'
   ),
   reverbDetailTemplate = _.template(
-    '<div class="reverb-modal" id="{{ article.id }}">' +
-      '<div class="reverb-content">' +
-        '<div class="reverb-content__header">' +
+    '<div class="item-modal" id="{{ article.id }}">' +
+      '<div class="item-content">' +
+        '<div class="item-content__header">' +
           '<a href="#" class="pull-right close">Close</a>' +
           '{{ article.make }} {{ article.model }}' +
           '<br>' +
@@ -39,60 +39,58 @@ var reverbListingTemplate = _.template(
           '<br>' +
           '{{ article.price.symbol }}{{ article.price.amount }}' +
         '</div>' +
-        '<div class="reverb-content__description">{{ article.description }}</div>' +
+        '<div class="item-content__description">{{ article.description }}</div>' +
       '</div>' +
     '</div>'
   );
 
 // Get's Article Extract on button press and load images
-// 'url': 'https://reverb.com/api/listings/all?query=' + param + '&per_page=200',
-function getReverbListing( ) {
+function getReverbListing( param ) {
   $.ajax({
-    'url': 'https://reverb.com/api/my/wishlist',
+    'url': 'https://reverb.com/api/listings/all?query=' + param + '&per_page=200',
     'method': 'GET',
-    'dataType': 'json',
-    'contentType': "application/json",
     'headers': {
       'accept': 'application/json',
       'content-type': 'application/json'
     },
-    beforeSend: function( xhr ) {
-      xhr.setRequestHeader("X-Auth-Token", atob('MDc0OWVlZTE1MzAyOWViMzFjOTI0NjIzZDEwOTEzNzU3ZmMzYjVmNTIwZDJiMjliZjIwNWE0MmZiNjk0ZjhhZQ=='))
+    beforeSend: function() {
+      $('body').append('<div id="loader"></div>');
     }
   }).done(function( response ) {
+    $('#loader').remove();
     appendListing(_.values(response.listings));
   });
 }
 
-function reverbList( ) {
-  $('.reverb-wrapper').empty();
+function reverbList( param ) {
+  $('.item-wrapper').empty();
   $('.article-content-wrapper').empty();
-  getReverbListing();
+  getReverbListing( param );
 }
 
 function appendListing( listing ) {
   $.each(listing, function(i, item) {
     $('body').append(reverbDetailTemplate({article: item}));
-    $('.reverb-wrapper').append(reverbListingTemplate({article: item}));
+    $('.item-wrapper').append(reverbListingTemplate({article: item}));
   });
 }
 
 // Click events
 $('.btn').on('click', function() {
   var param = $('input').val();
-  reverbList();
+  reverbList( param );
 });
 
 $('input').on('focusout', function() {
   $('.btn').text('Find ' + $(this).val() + ' Listings');
 });
 
-$(document).on('click', '.title a', function( e ) {
+$(document).on('click', '.item__title a', function( e ) {
   e.preventDefault();
-  $('#' + $(this).data('id')).addClass('reverb-modal--visible')
+  $('#' + $(this).data('id')).addClass('item-modal--visible')
 });
 
 $(document).on('click', '.close', function( e ) {
   e.preventDefault();
-  $(this).parent().parent().parent().removeClass('reverb-modal--visible')
+  $(this).parent().parent().parent().removeClass('item-modal--visible')
 });
