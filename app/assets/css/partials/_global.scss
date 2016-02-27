@@ -21,3 +21,15 @@ section {
   line-height: 1.6;
   text-align: center;
 }
+
+.container {
+  transition: all 0.75s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.modal-open {
+  .container {
+    transform: perspective(100px) translateX(-5px) translateY(-5px) translateZ(-5px);
+    transform-style: preserve-3d;
+    transition: all 0.75s cubic-bezier(0.19, 1, 0.22, 1);
+  }
+}

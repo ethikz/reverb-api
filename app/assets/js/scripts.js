@@ -87,10 +87,12 @@ $('input').on('focusout', function() {
 
 $(document).on('click', '.item__title a', function( e ) {
   e.preventDefault();
-  $('#' + $(this).data('id')).addClass('item-modal--visible')
+  $('#' + $(this).data('id')).addClass('item-modal--visible');
+  $('body').addClass('modal-open');
 });
 
 $(document).on('click', '.close', function( e ) {
   e.preventDefault();
-  $(this).parent().parent().parent().removeClass('item-modal--visible')
+  $(this).parent().parent().parent().removeClass('item-modal--visible');
+  $('body').removeClass('modal-open');
 });
