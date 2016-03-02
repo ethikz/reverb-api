@@ -45,7 +45,7 @@ var reverbListingTemplate = _.template(
 // Get's Article Extract on button press and load images
 function getReverbListing( param ) {
   $.ajax({
-    'url': 'https://reverb.com/api/listings/all?query=' + param + '&per_page=99999',
+    'url': 'https://reverb.com/api/listings/all?query=' + param + '&per_page=200',
     'method': 'GET',
     'headers': {
       'accept': 'application/json',
